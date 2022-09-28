@@ -69,7 +69,7 @@ resource "google_compute_address" "static" {
 #################
 # Allows HTTP Traffic
 #################
-resource "google_compute_firewall" "allow_http" {
+`resource "google_compute_firewall" "allow_http" {
   name          = "allow-http-rule"
   source_ranges = ["0.0.0.0/0"]
   network       = "default"
@@ -80,3 +80,4 @@ resource "google_compute_firewall" "allow_http" {
   priority = 1000
 
 }
+`
