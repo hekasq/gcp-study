@@ -1,4 +1,40 @@
 #################
+#  Load Balancer
+#################
+
+resource "google_compute_region_backend_service" "backend" {
+  provider              = google-beta
+  name                  = "backend-lb"
+  region                = "us-central1"
+  load_balancing_scheme = "EXTERNAL"
+  health_checks         = [google_compute_region_health_check.hc.id]
+  #pointing load balancer at the MiG
+  backend {
+    group = google_compute_instance_group_manager.mig.instance_group
+  }
+}
+/*
+resource "google_compute_forwarding_rule" "fwd_rule" {
+
+  name = "fwd-rule"
+  provider = google-beta
+  region                = "us-central1"
+  target = ""
+}*/
+
+resource "google_compute_region_health_check" "hc" {
+  provider           = google-beta
+  name               = "check-website-backend"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+#################
 #  MIG
 #################
 resource "google_compute_instance_group_manager" "mig" {
@@ -33,7 +69,7 @@ resource "google_compute_autoscaler" "default" {
 
 
 #################
-#  ISO Standard healthcheck
+#  Standard healthcheck
 #################
 resource "google_compute_health_check" "autohealing" {
   name                = "autohealing-health-check"
@@ -77,10 +113,4 @@ resource "google_compute_firewall" "allow_http" {
   priority = 1000
 }
 
-#################
-# Provider definition
-#################
-provider "google" {
-  project = "gcp-arch-362703"
-  region  = "us-central1"
-}
+
